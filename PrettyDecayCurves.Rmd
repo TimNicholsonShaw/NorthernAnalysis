@@ -36,25 +36,6 @@ x <- find_half_life(test)
 x
 
 
-plot(test$Time, test$Abundance)
-
-theta.0 <- min(test$Abundance)*0.5
-
-model.0 <- lm(log(Abundance - theta.0) ~Time, data=test)
-alpha.0 <- exp(coef(model.0)[1])
-beta.0 <- coef(model.0)[2]
-
-start <- list(alpha=alpha.0, beta=beta.0, theta=theta.0)
-
-
-model <- nls(Abundance ~ alpha * exp(beta * Time) + theta, data=test, start=start)
-
-model
-
-plot(test$Time, test$Abundance)
-lines(test$Time, predict(model, list(x=test$Time)))
-
-summary(model)
 ```
 
 
