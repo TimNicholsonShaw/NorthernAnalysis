@@ -24,3 +24,25 @@ read_in_and_preprocessor <- function(file_loc) {
     return(df)
 }
 
+find_half_life <- function(df) { # returns half life in minutes
+    # really good explanation of non-linear fitting https://rpubs.com/mengxu/exponential-model
+    # trying to fit to model: y = alpha*e^(beta*x) + theta
+    # need to find good starting values before fitting can start
+
+    # select approximate theta. Needs be lower than the minimum of Abbundance, but greater than 0
+    theta.0 <- min(df$Abundance) * 0.5 
+
+    #Estimate the other parameters using a linear model
+    model.0 <- lm(log(Abundance - theta.0) ~ Time, data=df)
+    alpha.0 <- exp(coef(model.0)[1])
+    beta.0 <- coef(model.0)[2]
+
+    # Starting paramteters
+    start <- list(alpha=alpha.0, beta=beta.0, theta=theta.0)
+
+    # make the model using starting values
+    model <- nls(Abundance ~ alpha * exp(beta * Time) + theta, data=df, start=start)
+
+    beta = coef(model)[2]
+    return(log(0.5)/beta)
+}
