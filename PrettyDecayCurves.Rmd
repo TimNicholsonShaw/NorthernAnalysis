@@ -7,11 +7,20 @@ output: html_notebook
 ```{r}
 library('Rmisc')
 library('tidyverse')
-library('ggplot2')
+library('ggplot')
+
 ```
 
 
 Should be able to 
+
+```{r}
+source('GraphingTools.r')
+read_in_and_preprocessor("~/Desktop/siLucVssiSki.csv")
+
+
+```
+
 
 ```{r}
 ski_df <- read.csv("./NSD_siLuc_siSki/NSD_LucVsSki_new.csv")
