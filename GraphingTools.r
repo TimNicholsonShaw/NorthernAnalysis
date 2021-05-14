@@ -24,45 +24,39 @@ read_in_and_preprocessor <- function(file_loc) {
     return(df)
 }
 
-find_half_life <- function(df) { # returns half life in minutes
-    # really good explanation of non-linear fitting https://rpubs.com/mengxu/exponential-model
-    # trying to fit to model: y = alpha*e^(beta*x) + theta
-    # need to find good starting values before fitting can start
 
-    # select approximate theta. Needs be lower than the minimum of Abbundance, but greater than 0
-    theta.0 <- min(df$Abundance) * 0.5
-
-    #Estimate the other parameters using a linear model
-    model.0 <- lm(log(Abundance - theta.0) ~ Time, data=df)
-    alpha.0 <- exp(coef(model.0)[1])
-    beta.0 <- coef(model.0)[2]
-
-
-    # Starting parameters
-    start <- list(alpha=alpha.0, beta=beta.0, theta=theta.0)
-
-    # make the model using starting values
-    model <- nls(Abundance ~ alpha * exp(beta * Time) + theta, data=df, start=start, control = list(maxiter = 500))
-    return(log(0.5) / coef(model)[2])
+find_half_life <- function(df){ # returns half life in minutes
+    df_model = lm(log(Abundance) ~ Time, data=df)
+    return(log(0.5)/coef(df_model)[2])
 }
 
-find_half_life_model <- function(df) { # returns half life in minutes
-    # really good explanation of non-linear fitting https://rpubs.com/mengxu/exponential-model
-    # trying to fit to model: y = alpha*e^(beta*x) + theta
-    # need to find good starting values before fitting can start
+find_R2 <- function(df){
+    return(cor(df$Time, df$Abundance)^2)
+}
 
-    # select approximate theta. Needs be lower than the minimum of Abbundance, but greater than 0
-    theta.0 <- min(df$Abundance) * 0.5 
+plot_overview <- function(df) { # plots all data in df as facet wrapped table
+    ggplot(df, aes(x=Time, y=log(Abundance), color=Treatment)) +
+        geom_point() + 
+        facet_wrap(~ Substrate + Replicate) + 
+        geom_smooth(method="lm", formula=(y~x), se=F)
+}
 
-    #Estimate the other parameters using a linear model
-    model.0 <- lm(log(Abundance - theta.0) ~ Time, data=df)
-    alpha.0 <- exp(coef(model.0)[1])
-    beta.0 <- coef(model.0)[2]
-
-    # Starting paramteters
-    start <- list(alpha=alpha.0, beta=beta.0, theta=theta.0)
-
-    # make the model using starting values
-    model <- nls(Abundance ~ alpha * exp(beta * Time) + theta, data=df, start=start)
-    return(model)
+plot_paper_curve_by_treatment <- function(df) { # plot curve formatted for paper
+    df_summary <- summarySE(df, 
+                            measurevar="Abundance", 
+                            groupvars=c("Time", "Substrate", "Treatment"), 
+                            na.rm=T)
+    ggplot(df_summary, aes(x=Time, y=log(Abundance), color=Treatment)) +
+        geom_point(size=3) + 
+        geom_smooth(method="lm", formula=(y~x), size=1.3, se=F) + 
+        geom_errorbar(aes(ymin=log(Abundance-se), ymax=log(Abundance+se), width=5)) +
+        theme_minimal() +
+        theme(panel.grid.major.y=element_blank(), 
+                panel.grid.minor.x=element_blank(),
+                panel.grid.major.x=element_blank(),
+                panel.grid.minor.y=element_blank(),
+                panel.border=element_rect(size=1, fill=NA, color='lightgrey')) +
+        scale_y_continuous(breaks=c(0.000001,-0.105360516, -0.223143551, -0.356674944, -0.510825624, -0.693147181, -0.916290732, -1.203972804, -1.609437912, -2.302585093),
+                            label=(c(0,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1))) +
+        scale_x_continuous(breaks=c(0,120,240,360))
 }
