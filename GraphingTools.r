@@ -31,6 +31,14 @@ find_half_life <- function(df){ # returns half life in minutes
     return(log(0.5)/coef(df_model)[2])
 }
 
+find_se <- function(df){
+    df_summary <- summarySE(df, 
+                            measurevar="Abundance", 
+                            groupvars=c("Time", "Substrate", "Treatment"), 
+                            na.rm=T)
+    return(df_summary)
+}
+
 find_R2 <- function(df){
     return(cor(df$Time, df$Abundance)^2)
 }

@@ -45,3 +45,23 @@ find_half_life(test)
 
 plot_paper_curve_by_treatment(test)
 ```
+
+
+TLS128
+```{r}
+source("GraphingTools.r")
+df <- read_in_and_preprocessor("~/Desktop/2021-05-14_TLS128_Quant.csv")
+
+df <- filter(df, Substrate=="BG-NSD")
+
+plot_paper_curve_by_treatment(df)
+
+df <- read_in_and_preprocessor("~/Desktop/2021-05-14_TLS128_Quant.csv")
+
+df <- filter(df, Substrate=="BG-NSD", Treatment=="siLuc", Replicate==3)
+
+find_half_life(df)
+
+
+```
+
