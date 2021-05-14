@@ -6,6 +6,7 @@ read_in_and_preprocessor <- function(file_loc) {
 
     df$Replicate <- as.factor(df$Replicate) # make sure that replicate isn't treated as numbers
     df$Treatment <- as.factor(df$Treatment) # factorize everything else
+    df$Treatment <- relevel(df$Treatment, "siLuc") #siLuc is always the first factor
     df$Substrate <- as.factor(df$Substrate)
 
     # Normalize all columns to 100% abundance
@@ -55,8 +56,13 @@ plot_paper_curve_by_treatment <- function(df) { # plot curve formatted for paper
                 panel.grid.minor.x=element_blank(),
                 panel.grid.major.x=element_blank(),
                 panel.grid.minor.y=element_blank(),
-                panel.border=element_rect(size=1, fill=NA, color='lightgrey')) +
+                axis.ticks=element_line(),
+                panel.border=element_rect(size=1, fill=NA, color='lightgrey'),
+                text=element_text(size=10)) +
         scale_y_continuous(breaks=c(0.000001,-0.105360516, -0.223143551, -0.356674944, -0.510825624, -0.693147181, -0.916290732, -1.203972804, -1.609437912, -2.302585093),
-                            label=(c(0,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1))) +
-        scale_x_continuous(breaks=c(0,120,240,360))
+                            label=(c(100,90,80,70,60,50,40,30,20,10))) +
+        scale_x_continuous(breaks=c(0,120,240,360)) +
+        scale_color_manual(values=c( "#A4A4A5","#000000")) +
+        ylab("mRNA Abundance (%)") +
+        xlab("Time (min)")
 }
