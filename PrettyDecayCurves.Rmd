@@ -7,14 +7,93 @@ output: html_notebook
 ```{r}
 library('Rmisc')
 library('tidyverse')
-library('ggplot')
-
+library('ggplot2')
+source('GraphingTools.r')
 ```
+
+NSD substrate siLuc vs siA1
+```{r}
+df <- read_in_and_preprocessor("~/Google Drive/Grad School/Angel 1 Paper/Fig4_new/BGvNSDvWT_A1KD/2021_05_17_TLS128requant_Luc_A1_WT_NSD_PTC.csv")
+
+plot_paper_curve_by_treatment(filter(df, Substrate=="BG-NSD")) + 
+  annotate("text", label="176±11 min", x=240, y=-1.3, color="#A4A4A5", size=5) +
+  annotate("text", label="263±48 min", x=240, y=-0.2, color="#000000", size=5) +
+  annotate("text", label="*", x=130, y=-0.25, color="#000000", size=8) +
+  annotate("text", label="*", x=250, y=-0.55, color="#000000", size=8) +
+  annotate("text", label="*", x=370, y=-0.95, color="#000000", size=8) 
+```
+
+PTC Substrate siL vs siA1
+
+```{r}
+df <- read_in_and_preprocessor("~/Google Drive/Grad School/Angel 1 Paper/Fig4_new/BGvNSDvWT_A1KD/2021_05_17_TLS128requant_Luc_A1_WT_NSD_PTC.csv")
+
+plot_paper_curve_by_treatment(filter(df, Substrate=="BG-PTC")) + 
+  annotate("text", label="339±79 min", x=280, y=-1, color="#A4A4A5", size=5) +
+  annotate("text", label="343±42 min", x=280, y=-0.2, color="#000000", size=5)
+```
+
+WT Addback
+```{r}
+source('GraphingTools.r')
+df <- read_in_and_preprocessor("~/Google Drive/Grad School/Angel 1 Paper/Fig4_new/A1Addbacks/2021-05-19_TLS130_addbacks.csv")
+
+
+
+plot_paper_curve_by_treatment(filter(df, Substrate=="BG-NSD", Treatment!="DA")) +
+  annotate("text", label="192±9 min", x=200, y=-1.2, color="#A4A4A5", size=5) +
+  annotate("text", label="220±19 min", x=240, y=-1.05, color="#00BFFF", size=5) + 
+  annotate("text", label="244±13 min", x=300, y=-.5, color="#000000", size=5)
+  
+```
+
+Dead Addback
+```{r}
+df <- read_in_and_preprocessor("~/Google Drive/Grad School/Angel 1 Paper/Fig4_new/A1Addbacks/2021-05-19_TLS130_addbacks.csv")
+
+df$Treatment <- factor(df$Treatment, levels=c("siLuc", "siA1", "WT", "DA"))
+
+
+plot_paper_curve_by_treatment(filter(df, Substrate=="BG-NSD", Treatment!="WT"), tim_colors=c( "#A4A4A5", "#000000","#F08080")) +
+  annotate("text", label="192±9 min", x=200, y=-1.2, color="#A4A4A5", size=5) +
+  annotate("text", label="278±20 min", x=330, y=-.3, color="#F08080", size=5) + 
+  annotate("text", label="244±13 min", x=300, y=-.45, color="#000000", size=5)
+```
+
+TPI-NSD
+```{r}
+df <- read_in_and_preprocessor("~/Google Drive/Grad School/Angel 1 Paper/Fig4_new/TPI/2021-05-19_TPI.csv")
+
+
+plot_paper_curve_by_treatment(filter(df, Substrate=="TPI-NSD")) + 
+  annotate("text", label="344±54 min", x=260, y=-0.6, color="#A4A4A5", size=5) +
+  annotate("text", label="467±83 min", x=280, y=-0.2, color="#000000", size=5)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```{r}
 source('GraphingTools.r')
-df <- read_in_and_preprocessor("~/Desktop/siLucVssiSki.csv")
+df <- read_in_and_preprocessor("~/Desktop/2021-05-17_TLS130requant.csv")
 plot_overview(df)
 
 
@@ -29,21 +108,28 @@ ggplot(df, aes(x=Time, y=log(Abundance), color=Treatment)) +
 ```
 ```{r}
 source("GraphingTools.r")
-test <- filter(df, Substrate=="BG-NSD", Treatment=="siLuc", Replicate==3)
+test <- filter(df, Substrate=="BG-NSD", Treatment=="siA1", Replicate==3)
 
-find_half_life_improved(test)
+find_half_life(test)
 
 
 ```
 ```{r}
 source("GraphingTools.r")
-df <- read_in_and_preprocessor("~/Desktop/siLucVssiSki.csv")
-test <- filter(df, Substrate=="BG-NSD")
+df <- read_in_and_preprocessor("~/Desktop/2021_05_17_TLS128requant_Luc_A1_WT_NSD_PTC.csv")
 
-find_R2(test)
-find_half_life(test)
 
-plot_paper_curve_by_treatment(test)
+plot_paper_curve_by_treatment(filter(df, Substrate=="BG-WT"))
+plot_paper_curve_by_treatment(filter(df, Substrate=="BG-NSD"))
+plot_paper_curve_by_treatment(filter(df, Substrate=="BG-PTC"))
+
+
+find_half_life(filter(df, Substrate=="BG-PTC", Treatment=="siA1", Replicate==1))
+minutes <- 360
+A <- filter(df, Substrate=="BG-PTC", Time==minutes, Treatment=="siLuc")$Abundance
+B <- filter(df, Substrate=="BG-PTC", Time==minutes, Treatment=="siA1")$Abundance
+
+t.test(A,B, alternative="less", paired=TRUE)
 ```
 
 
@@ -63,5 +149,54 @@ df <- filter(df, Substrate=="BG-NSD", Treatment=="siLuc", Replicate==3)
 find_half_life(df)
 
 
+```
+```{r}
+source("GraphingTools.r")
+df <- read_in_and_preprocessor("~/Desktop/2021-05-17_TLS130requant.csv")
+
+plot_paper_curve_by_treatment(filter(df, Treatment=='siLuc' | Treatment=='siA1' | Treatment=='WT'))
+```
+```{r}
+source("GraphingTools.r")
+df <- read_in_and_preprocessor("~/Desktop/2021_05_17_TLS128requant.csv")
+
+x <- plot_paper_curve_by_treatment(filter(df, Substrate=="BG-NSD"))
+
+find_half_life(filter(df, Substrate=="BG-WT", Treatment=="siA1"))
+
+x$high <- x$Abundance + x$se
+x$low <- x$Abundance - x$se
+df_model = lm(log(high) ~ Time, data=filter(x, Treatment=="siA1"))
+log(0.5)/coef(df_model)[2]
+
+```
+```{r}
+source("GraphingTools.r")
+df <- read_in_and_preprocessor("~/Desktop/2021-05-19_TLS130_addbacks.csv")
+
+
+
+plot_paper_curve_by_treatment(filter(df, Substrate=="BG-NSD", Treatment!="DA"))
+
+plot_paper_curve_by_treatment(filter(df, Substrate=="BG-NSD", Treatment!="WT"))
+
+
+```
+```{r}
+source("GraphingTools.r")
+df <- read_in_and_preprocessor("~/Desktop/2021-05-19_TPI.csv")
+
+plot_paper_curve_by_treatment(df)
+
+find_half_life(filter(df, Treatment=="siA1", Replicate==1))
+```
+
+```{r}
+source("GraphingTools.r")
+df <- read_in_and_preprocessor("~/Desktop/2021-05-19_WTvNSDvPTC.csv")
+
+#plot_paper_curve_by_substrate(df)
+
+find_half_life(filter(df, Substrate=="BG-PTC"))
 ```
 

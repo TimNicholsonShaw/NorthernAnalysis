@@ -1,5 +1,6 @@
 library('tidyverse')
 library('ggplot2')
+library('Rmisc')
 
 read_in_and_preprocessor <- function(file_loc) {
     df <- read.csv(file_loc) # read as CSV
@@ -50,12 +51,41 @@ plot_overview <- function(df) { # plots all data in df as facet wrapped table
         geom_smooth(method="lm", formula=(y~x), se=F)
 }
 
-plot_paper_curve_by_treatment <- function(df) { # plot curve formatted for paper
+plot_paper_curve_by_treatment <- function(df, tim_colors=c( "#A4A4A5", "#000000", "#00BFFF", "#F08080")) { # plot curve formatted for paper
     df_summary <- summarySE(df, 
                             measurevar="Abundance", 
                             groupvars=c("Time", "Substrate", "Treatment"), 
                             na.rm=T)
-    ggplot(df_summary, aes(x=Time, y=log(Abundance), color=Treatment)) +
+    plt<-ggplot(df_summary, aes(x=Time, y=log(Abundance), color=Treatment)) +
+        geom_point(size=3) + 
+        geom_smooth(method="lm", formula=(y~x), size=1.3, se=F) + 
+        geom_errorbar(aes(ymin=log(Abundance-se), ymax=log(Abundance+se), width=5)) +
+        theme_minimal() +
+        theme(panel.grid.major.y=element_blank(), 
+                panel.grid.minor.x=element_blank(),
+                panel.grid.major.x=element_blank(),
+                panel.grid.minor.y=element_blank(),
+                axis.ticks=element_line(),
+                panel.border=element_rect(size=1, fill=NA, color='lightgrey'),
+                text=element_text(size=10),
+                legend.title=element_blank()) +
+        scale_y_continuous(breaks=c(0.000001,-0.105360516, -0.223143551, -0.356674944, -0.510825624, -0.693147181, -0.916290732, -1.203972804, -1.609437912, -2.302585093),
+                            label=c(100,90,80,70,60,50,40,30,20,10), limits=c(-1.62, 0.1) ) +
+        scale_x_continuous(breaks=c(0,120,240,360)) +
+        scale_color_manual(values=tim_colors) +
+        ylab("mRNA Abundance (%)") +
+        xlab("Time (min)")
+
+        return(plt)
+
+}
+
+plot_paper_curve_by_substrate <- function(df, tim_colors=c( "#A4A4A5", "#000000", "#00BFFF", "#F08080")) { # plot curve formatted for paper
+    df_summary <- summarySE(df, 
+                            measurevar="Abundance", 
+                            groupvars=c("Time", "Substrate", "Treatment"), 
+                            na.rm=T)
+    plt<-ggplot(df_summary, aes(x=Time, y=log(Abundance), color=Substrate)) +
         geom_point(size=3) + 
         geom_smooth(method="lm", formula=(y~x), size=1.3, se=F) + 
         geom_errorbar(aes(ymin=log(Abundance-se), ymax=log(Abundance+se), width=5)) +
@@ -68,9 +98,13 @@ plot_paper_curve_by_treatment <- function(df) { # plot curve formatted for paper
                 panel.border=element_rect(size=1, fill=NA, color='lightgrey'),
                 text=element_text(size=10)) +
         scale_y_continuous(breaks=c(0.000001,-0.105360516, -0.223143551, -0.356674944, -0.510825624, -0.693147181, -0.916290732, -1.203972804, -1.609437912, -2.302585093),
-                            label=(c(100,90,80,70,60,50,40,30,20,10))) +
+                            label=c(100,90,80,70,60,50,40,30,20,10), limits=c(-1.9, 0.1) ) +
         scale_x_continuous(breaks=c(0,120,240,360)) +
-        scale_color_manual(values=c( "#A4A4A5","#000000")) +
+        scale_color_manual(values=tim_colors) +
         ylab("mRNA Abundance (%)") +
-        xlab("Time (min)")
+        xlab("Time (min)") +
+
+
+        return(plt)
+
 }
